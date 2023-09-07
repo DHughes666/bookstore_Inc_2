@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from environs import Env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,14 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-b$!cd$m4*$#c=6^_^i$dd+^i21@zp5)bu&7#2$fxq(xzftk26@'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+env = Env()
+env.read_env()
 
 # Application definition
 
@@ -44,6 +39,7 @@ INSTALLED_APPS = [
     # local
     'accountsy.apps.AccountsyConfig',
     'pages.apps.PagesConfig',
+    'books.apps.BooksConfig',
 ]
 
 
@@ -79,19 +75,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bookstoreProject.wsgi.application'
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env("DJANGO_SECRET_KEY")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env.bool("DJANGO_DEBUG")
+
+ALLOWED_HOSTS = [".herokuapp.com", "localhost", "127.0.0.1"]
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'db',
-        'PORT': 5432
-    }
+    "default": env.dj_db_url("DATABASE_URL", 
+                             default="postgres://postgres@db/postgres"),
 }
 
 
@@ -147,7 +144,7 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
@@ -161,3 +158,4 @@ AUTH_USER_MODEL = 'accountsy.CustomUser'
 LOGIN_REDIRECT_URL = 'home'
 ACCOUNT_LOGOUT_REDIRECT = 'home'
 
+DEFAULT_FROM_EMAIL = "admin@bookstore.com"
