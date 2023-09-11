@@ -6,3 +6,4 @@ django-allauth
 environs[django]
 mailchimp_transactional
 tzdata==2023.3
+pillow==9.0.1
