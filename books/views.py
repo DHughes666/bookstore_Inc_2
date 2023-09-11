@@ -1,10 +1,13 @@
+from typing import Any
 from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin
 )
+from django.db.models.query import QuerySet
 from django.views.generic import ListView, DetailView
 
 from .models import Book
+from django.db.models import Q
 
 # Create your views here.
 class BookListView(LoginRequiredMixin, ListView):
@@ -25,3 +28,9 @@ class SearchResultsListView(ListView):
     model = Book
     context_object_name = "book_list"
     template_name = 'books/search_results.html'
+
+    def get_queryset(self):
+        query = self.request.GET.get('searchTerm')
+        return Book.objects.filter(
+            Q(title__icontains=query) | Q(author__icontains=query)
+        )
